@@ -1,0 +1,17 @@
+﻿# Ignore build artifacts
+**/bin/
+**/obj/
+*.log
+*.user
+*.suo
+*.tmp
+*.cache
+*.DS_Store
+# Ignore git portable downloads
+gitportable.zip
+gitportable/
+# Ignore Visual Studio temporary files
+.vs/
+# Ignore npm log and lock files if you don't want them
+# package-lock.json
+

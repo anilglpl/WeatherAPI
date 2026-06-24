@@ -1,0 +1,55 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  nodeVersion: '18.x'
+
+stages:
+  - stage: Build
+    displayName: Build and Test
+    jobs:
+      - job: InstallAndTest
+        displayName: Install dependencies and run tests
+        steps:
+          - task: NodeTool@0
+            inputs:
+              versionSpec: '$(nodeVersion)'
+          - script: |
+              npm install
+              npm test
+            workingDirectory: practice-api
+            displayName: Install and test Practice API
+
+  - stage: Deploy
+    displayName: Deploy to Azure
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployWebApp
+        displayName: Deploy Practice API to Azure Web App
+        environment: 'practice-api-dev'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: NodeTool@0
+                  inputs:
+                    versionSpec: '$(nodeVersion)'
+                - script: |
+                    cd practice-api
+                    npm install --production
+                  displayName: Install production dependencies
+                - task: AzureWebApp@1
+                  inputs:
+                    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+                    appType: 'webApp'
+                    appName: 'YOUR_APP_SERVICE_NAME'
+                    package: '$(System.DefaultWorkingDirectory)/practice-api'
+                  displayName: Deploy to Azure Web App

@@ -1,0 +1,58 @@
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+
+stages:
+  - stage: Build
+    displayName: Build and Test
+    jobs:
+      - job: BuildAndTest
+        displayName: Build and Test .NET
+        steps:
+          - task: UseDotNet@2
+            displayName: Use .NET SDK
+            inputs:
+              packageType: 'sdk'
+              version: '9.0.x'
+          - script: |
+              dotnet restore practice-api-dotnet.sln
+              dotnet build practice-api-dotnet.sln --configuration $(buildConfiguration)
+              dotnet test practice-api-dotnet.sln --configuration $(buildConfiguration)
+            displayName: Restore, build, and run tests
+
+  - stage: Deploy
+    displayName: Deploy to Azure Web App
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployWebApp
+        displayName: Deploy .NET API
+        environment: 'practice-api-dotnet-dev'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UseDotNet@2
+                  displayName: Use .NET SDK
+                  inputs:
+                    packageType: 'sdk'
+                    version: '9.0.x'
+                - script: |
+                    dotnet publish practice-api-dotnet/practice-api-dotnet.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+                  displayName: Publish app
+                - task: AzureWebApp@1
+                  displayName: Deploy to Azure Web App
+                  inputs:
+                    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+                    appType: 'webApp'
+                    appName: 'YOUR_APP_SERVICE_NAME'
+                    package: '$(Build.ArtifactStagingDirectory)'

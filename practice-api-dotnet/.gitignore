@@ -1,0 +1,13 @@
+bin/
+obj/
+*.user
+*.vs
+.vscode/
+*.db
+*.log
+
+# Rider
+.idea/
+
+# Azure Pipelines
+*.zip
