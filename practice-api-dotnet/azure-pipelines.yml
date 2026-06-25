@@ -52,7 +52,7 @@ stages:
                 - task: AzureWebApp@1
                   displayName: Deploy to Azure Web App
                   inputs:
-                    azureSubscription: 'YOUR-SERVICE-CONNECTION'
+                    azureSubscription: practice-api-azure
                     appType: 'webApp'
-                    appName: 'YOUR_APP_SERVICE_NAME'
+                    appName: WeatherApiTest123
                     package: '$(Build.ArtifactStagingDirectory)'
