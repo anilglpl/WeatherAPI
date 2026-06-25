@@ -23,8 +23,8 @@ stages:
             inputs:
               packageType: 'sdk'
               version: '9.0.x'
-          
-            - checkout: self
+
+          - checkout: self
           - script: |
               dotnet restore practice-api-dotnet.sln
               dotnet build practice-api-dotnet.sln --configuration $(buildConfiguration)
