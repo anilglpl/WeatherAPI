@@ -47,6 +47,14 @@ stages:
                     packageType: 'sdk'
                     version: '9.0.x'
                 - script: |
+                    echo "Inspecting agent workspace"
+                    pwd
+                    echo "Listing repo root:" && ls -la
+                    echo "Listing practice-api-dotnet folder:" && ls -la practice-api-dotnet || true
+                    echo "Checking project file:" && ls -la practice-api-dotnet/practice-api-dotnet.csproj || true
+                  displayName: Inspect workspace
+
+                - script: |
                     dotnet publish practice-api-dotnet/practice-api-dotnet.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
                   displayName: Publish app
                 - task: AzureWebApp@1
