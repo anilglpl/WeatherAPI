@@ -23,6 +23,8 @@ stages:
             inputs:
               packageType: 'sdk'
               version: '9.0.x'
+          
+            - checkout: self
           - script: |
               dotnet restore practice-api-dotnet.sln
               dotnet build practice-api-dotnet.sln --configuration $(buildConfiguration)
@@ -48,10 +50,12 @@ stages:
                     version: '9.0.x'
                 - script: |
                     echo "Inspecting agent workspace"
-                    pwd
-                    echo "Listing repo root:" && ls -la
-                    echo "Listing practice-api-dotnet folder:" && ls -la practice-api-dotnet || true
-                    echo "Checking project file:" && ls -la practice-api-dotnet/practice-api-dotnet.csproj || true
+                    echo "PWD: $(pwd)"
+                    echo "Build.SourcesDirectory: $(Build.SourcesDirectory)"
+                    echo "System.DefaultWorkingDirectory: $(System.DefaultWorkingDirectory)"
+                    echo "Listing repo root:" && ls -la $(Build.SourcesDirectory)
+                    echo "Listing practice-api-dotnet folder:" && ls -la $(Build.SourcesDirectory)/practice-api-dotnet || true
+                    echo "Checking project file:" && ls -la $(Build.SourcesDirectory)/practice-api-dotnet/practice-api-dotnet.csproj || true
                   displayName: Inspect workspace
 
                 - script: |
