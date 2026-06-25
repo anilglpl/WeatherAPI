@@ -67,8 +67,9 @@ stages:
                   displayName: Inspect workspace
 
                 - script: |
-                    dotnet publish practice-api-dotnet/practice-api-dotnet.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+                    dotnet publish "$(Build.SourcesDirectory)/practice-api-dotnet/practice-api-dotnet.csproj" --configuration $(buildConfiguration) --output "$(Build.ArtifactStagingDirectory)"
                   displayName: Publish .NET app
+                  workingDirectory: $(Build.SourcesDirectory)
                 - task: AzureWebApp@1
                   displayName: Deploy .NET app to Azure Web App
                   inputs:
