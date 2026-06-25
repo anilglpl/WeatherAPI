@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # ASP.NET Core (.NET Framework)
 # Build and test ASP.NET Core projects targeting the full .NET Framework.
 # Add steps that publish symbols, save build artifacts, and more:
@@ -32,3 +33,65 @@ steps:
   inputs:
     platform: '$(buildPlatform)'
     configuration: '$(buildConfiguration)'
+=======
+trigger:
+  branches:
+    include:
+      - main
+      - master
+      - feature/*
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  azureSubscription: 'YOUR-SERVICE-CONNECTION'
+  dotnetWebAppName: 'WeatherApiTest123'
+
+stages:
+  - stage: Build
+    displayName: Build and Test
+    jobs:
+      - job: BuildDotNet
+        displayName: Build and Test .NET
+        steps:
+          - task: UseDotNet@2
+            displayName: Use .NET SDK
+            inputs:
+              packageType: 'sdk'
+              version: '9.0.x'
+          - script: |
+              dotnet restore practice-api-dotnet.sln
+              dotnet build practice-api-dotnet.sln --configuration $(buildConfiguration)
+              dotnet test practice-api-dotnet.sln --configuration $(buildConfiguration)
+            displayName: Restore, build, and test .NET app
+
+  - stage: Deploy
+    displayName: Deploy .NET app to Azure Web App
+    dependsOn: Build
+    condition: succeeded()
+    jobs:
+      - deployment: DeployDotNet
+        displayName: Deploy .NET API
+        environment: 'practice-api-dotnet-dev'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: UseDotNet@2
+                  displayName: Use .NET SDK
+                  inputs:
+                    packageType: 'sdk'
+                    version: '9.0.x'
+                - script: |
+                    dotnet publish practice-api-dotnet/practice-api-dotnet.csproj --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)
+                  displayName: Publish .NET app
+                - task: AzureWebApp@1
+                  displayName: Deploy .NET app to Azure Web App
+                  inputs:
+                    azureSubscription: '$(azureSubscription)'
+                    appType: 'webApp'
+                    appName: '$(dotnetWebAppName)'
+                    package: '$(Build.ArtifactStagingDirectory)'
+>>>>>>> 8316c18 (Add root azure-pipelines.yml)
